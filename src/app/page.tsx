@@ -1,17 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { User } from "@/types/user";
+import { Repo } from "@/types/repo";
 
 export default function Home() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
-  interface User {
-    username: string;
-    displayName: string;
-    avatarUrl: string;
-  }
-
   const [user, setUser] = useState<User | null>(null);
+  const [repos, setRepos] = useState<Repo[]>([]);
 
   const handleSearch = (e: React.FormEvent) => {
     setLoading(true);
@@ -20,13 +17,29 @@ export default function Home() {
       .then((res) => res.json())
       .then((data) => {
         setLoading(false);
+        const createdDate = new Date(data.created_at).toLocaleDateString(
+          "en-US",
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          },
+        );
         const user = {
           username: data.login,
           displayName: data.name,
           avatarUrl: data.avatar_url,
+          repos: data.public_repos,
+          createdDateString: createdDate,
         };
         setUser(user);
         console.log(data);
+        fetch(`/api/repos?username=${username}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setRepos(data);
+            // TODO: Fetch created and modified repos this year
+          });
       });
   };
 
@@ -34,7 +47,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="flex min-h-screen flex-col">
         <main className="flex-1 px-4 py-8">
-          <div className="mx-auto max-w-2xl">
+          <div className="mx-auto max-w-4xl">
             <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-black">
               <h1 className="text-3xl font-bold text-center mb-4">
                 GitHub Rewind
@@ -78,70 +91,57 @@ export default function Home() {
                   )}
                 </button>
               </form>
+              <div className="mt-4" />
               {user && (
-                <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                  <div className="flex justify-end px-4 pt-4">
-                    <button
-                      id="dropdownButton"
-                      data-dropdown-toggle="dropdown"
-                      className="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5"
-                      type="button"
-                    >
-                      <span className="sr-only">Open dropdown</span>
-                      <svg
-                        className="w-5 h-5"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 16 3"
-                      >
-                        <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
-                      </svg>
-                    </button>
-                    <div
-                      id="dropdown"
-                      className="z-10 hidden text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
-                    >
-                      <ul className="py-2" aria-labelledby="dropdownButton">
-                        <li>
-                          <a
-                            href="#"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                          >
-                            Edit
-                          </a>
-                        </li>
-                        <li>
-                          <a
-                            href="#"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                          >
-                            Export Data
-                          </a>
-                        </li>
-                        <li>
-                          <a
-                            href="#"
-                            className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                          >
-                            Delete
-                          </a>
-                        </li>
-                      </ul>
+                <div>
+                  <div className="w-full max-w-lg mx-auto bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                    <div className="mt-4 flex flex-col items-center pb-10">
+                      <img
+                        className="w-24 h-24 mb-3 rounded-full shadow-lg"
+                        src={user.avatarUrl}
+                        alt="Avatar"
+                      />
+                      <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
+                        {user.username}
+                      </h5>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {user.displayName}
+                      </span>
+                    </div>
+                    <div className="mt-2 px-4 py-2 bg-gray-100 dark:bg-gray-700">
+                      <h3 className="text-lg font-semibold flex items-center">
+                        Joined:
+                        <p className="font-normal ml-1">
+                          {user?.createdDateString}
+                        </p>
+                      </h3>
+                      <h3 className="text-lg font-semibold flex items-center">
+                        Repositories:
+                        <p className="font-normal ml-1">{user?.repos}</p>
+                      </h3>
                     </div>
                   </div>
-                  <div className="mt-4 flex flex-col items-center pb-10">
-                    <img
-                      className="w-24 h-24 mb-3 rounded-full shadow-lg"
-                      src={user.avatarUrl}
-                      alt="Avatar"
-                    />
-                    <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
-                      {user.username}
-                    </h5>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {user.displayName}
-                    </span>
+                  <div className="w-full max-w-lg mx-auto bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700 mt-4 rounded-lg p-8">
+                    <div className="text-center">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-gray-100 rounded-lg p-4">
+                          <p className="text-4xl font-bold">73M+</p>
+                          <p className="text-gray-600">
+                            Repos Created this year
+                          </p>
+                        </div>
+                        <div className="bg-gray-100 rounded-lg p-4">
+                          <p className="text-4xl font-bold">73M+</p>
+                          <p className="text-gray-600">
+                            Repos Edited this year
+                          </p>
+                        </div>
+                        <div className="bg-gray-100 rounded-lg p-4">
+                          <p className="text-4xl font-bold">73M+</p>
+                          <p className="text-gray-600">Commits this year</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

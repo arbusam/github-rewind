@@ -1,4 +1,4 @@
-import { getUser } from "@/app/githubApi";
+import { getRepos, getUser } from "@/app/githubApi";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -13,8 +13,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const user = await getUser(username);
-    return NextResponse.json(user);
+    const results = await getRepos(username);
+    return NextResponse.json(results);
   } catch (error) {
     return NextResponse.json(
       { error: `Failed to fetch user: ${error}` },
