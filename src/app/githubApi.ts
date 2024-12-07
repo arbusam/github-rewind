@@ -38,7 +38,7 @@ export async function getCreatedModifiedThisYear(repos: Repo[]) {
     (repo) => new Date(repo.created_at).getFullYear() === thisYear,
   );
   const modifiedThisYear = repos.filter(
-    (repo) => new Date(repo.created_at).getFullYear() === thisYear,
+    (repo) => new Date(repo.updated_at).getFullYear() === thisYear,
   );
-  return { created: createdThisYear, modified: modifiedThisYear };
+  return { created: createdThisYear.length, modified: modifiedThisYear.length };
 }

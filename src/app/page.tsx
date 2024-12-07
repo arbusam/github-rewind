@@ -8,7 +8,8 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [repos, setRepos] = useState<Repo[]>([]);
+  const [createdThisYear, setCreatedThisYear] = useState<number>();
+  const [modifiedThisYear, setModifiedThisYear] = useState<number>();
 
   const handleSearch = (e: React.FormEvent) => {
     setLoading(true);
@@ -33,12 +34,11 @@ export default function Home() {
           createdDateString: createdDate,
         };
         setUser(user);
-        console.log(data);
         fetch(`/api/repos?username=${username}`)
           .then((res) => res.json())
           .then((data) => {
-            setRepos(data);
-            // TODO: Fetch created and modified repos this year
+            setCreatedThisYear(data.createdThisYear);
+            setModifiedThisYear(data.modifiedThisYear);
           });
       });
   };
@@ -125,13 +125,13 @@ export default function Home() {
                     <div className="text-center">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="bg-gray-100 rounded-lg p-4">
-                          <p className="text-4xl font-bold">73M+</p>
+                          <p className="text-4xl font-bold">{createdThisYear}</p>
                           <p className="text-gray-600">
                             Repos Created this year
                           </p>
                         </div>
                         <div className="bg-gray-100 rounded-lg p-4">
-                          <p className="text-4xl font-bold">73M+</p>
+                          <p className="text-4xl font-bold">{modifiedThisYear}</p>
                           <p className="text-gray-600">
                             Repos Edited this year
                           </p>
