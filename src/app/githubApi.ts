@@ -1,7 +1,6 @@
 "use server";
 
 import { Octokit } from "octokit";
-import { User } from "@/types/user";
 import { Repo } from "@/types/repo";
 import { createAppAuth } from "@octokit/auth-app";
 
