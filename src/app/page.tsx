@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import { Repo } from "@/types/repo";
 
@@ -11,6 +11,14 @@ export default function Home() {
   const [createdThisYear, setCreatedThisYear] = useState<number>();
   const [modifiedThisYear, setModifiedThisYear] = useState<number>();
   const [commitsThisYear, setCommitsThisYear] = useState<number>();
+  const [createdLastYear, setCreatedLastYear] = useState<number>();
+  const [modifiedLastYear, setModifiedLastYear] = useState<number>();
+
+  useEffect(() => {
+    if (window.innerWidth >= 1024) {
+      document.getElementById("search")?.focus();
+    }
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     setLoading(true);
@@ -47,6 +55,12 @@ export default function Home() {
             setCreatedThisYear(data.createdThisYear);
             setModifiedThisYear(data.modifiedThisYear);
           });
+        fetch(`/api/reposLastYear?username=${username}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setCreatedLastYear(data.createdLastYear);
+            setModifiedLastYear(data.modifiedLastYear);
+          });
         fetch(`/api/commits?username=${username}`)
           .then((res) => res.json())
           .then((data) => {
@@ -60,15 +74,16 @@ export default function Home() {
       <div className="flex min-h-screen flex-col">
         <main className="flex-1 px-4 py-8">
           <div className="mx-auto max-w-4xl">
-            <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-black">
+            <div className="rounded-lg bg-white p-12 shadow-lg dark:bg-black">
               <h1 className="text-3xl font-bold text-center mb-4">
                 GitHub Rewind
               </h1>
               <form onSubmit={handleSearch} className="flex gap-2">
                 <input
                   type="text"
+                  id="search"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => setUsername(e.target.value)} // TODO: Remove whitespace
                   placeholder="Enter a username"
                   className="flex-1 px-4 py-2 rounded-lg border bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                 />
@@ -106,8 +121,8 @@ export default function Home() {
               <div className="mt-4" />
               {user && (
                 <div>
-                  <div className="w-full max-w-lg mx-auto bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                    <div className="mt-4 flex flex-col items-center pb-10">
+                  <div className="w-full max-w-2xl mx-auto bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                    <div className="mt-6 flex flex-col items-center pb-12">
                       <img
                         className="w-24 h-24 mb-3 rounded-full shadow-lg"
                         src={user.avatarUrl}
@@ -133,23 +148,146 @@ export default function Home() {
                       </h3>
                     </div>
                   </div>
-                  <div className="w-full max-w-lg mx-auto bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700 mt-4 rounded-lg p-8">
+                  <div className="w-full max-w-2xl mx-auto bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700 mt-6 rounded-lg p-12">
                     <div className="text-center">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-gray-100 rounded-lg p-4">
-                          <p className="text-4xl font-bold">{createdThisYear}</p>
-                          <p className="text-gray-600">
+                        <div className="bg-gray-100 rounded-lg p-6">
+                          {createdThisYear !== undefined ? (
+                            <div className="flex items-center justify-center">
+                              <p className="text-5xl font-bold">
+                                {createdThisYear}
+                              </p>
+                              {createdThisYear !== undefined &&
+                                createdLastYear !== undefined && (
+                                  <div className="flex items-center -mr-2">
+                                    {createdThisYear - createdLastYear > 0 ? (
+                                      <div className="flex items-center text-4xl font-bold text-green-500">
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          height="36px"
+                                          viewBox="0 -960 960 960"
+                                          width="36px"
+                                          fill="#10B981"
+                                          className="-mr-2"
+                                        >
+                                          <path d="m280-400 200-200 200 200H280Z" />
+                                        </svg>
+                                        {Math.abs(
+                                          createdThisYear - createdLastYear,
+                                        )}
+                                      </div>
+                                    ) : createdThisYear - createdLastYear ===
+                                      0 ? (
+                                      <div className="flex items-center text-4xl font-bold text-gray-500 ml-4">
+                                        +0
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center text-4xl font-bold text-red-500">
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          height="36px"
+                                          viewBox="0 -960 960 960"
+                                          width="36px"
+                                          fill="#EF4444"
+                                          className="-mr-2"
+                                        >
+                                          <path d="M480-360 280-560h400L480-360Z" />
+                                        </svg>
+                                        {Math.abs(
+                                          createdThisYear - createdLastYear,
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                            </div>
+                          ) : (
+                            <div
+                              role="status"
+                              className="max-w-sm animate-pulse flex justify-center items-center"
+                            >
+                              <div className="h-8 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-4"></div>
+                            </div>
+                          )}
+                          <p className="text-gray-600 mt-2">
                             Repos Created this year
                           </p>
                         </div>
-                        <div className="bg-gray-100 rounded-lg p-4">
-                          <p className="text-4xl font-bold">{modifiedThisYear}</p>
+                        <div className="bg-gray-100 rounded-lg p-6">
+                          {modifiedThisYear !== undefined ? (
+                            <div className="flex items-center justify-center">
+                              <p className="text-5xl font-bold -mr-2">
+                                {modifiedThisYear}
+                              </p>
+                              {modifiedThisYear !== undefined &&
+                                modifiedLastYear !== undefined && (
+                                  <div className="flex items-center ml-2">
+                                    {modifiedThisYear - modifiedLastYear > 0 ? (
+                                      <div className="flex items-center text-4xl font-bold text-green-500">
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          height="36px"
+                                          viewBox="0 -960 960 960"
+                                          width="36px"
+                                          fill="#10B981"
+                                          className="-mr-2"
+                                        >
+                                          <path d="m280-400 200-200 200 200H280Z" />
+                                        </svg>
+                                        {Math.abs(
+                                          modifiedThisYear - modifiedLastYear,
+                                        )}
+                                      </div>
+                                    ) : modifiedThisYear - modifiedLastYear ===
+                                      0 ? (
+                                      <div className="flex items-center text-4xl font-bold text-gray-500 ml-4">
+                                        +0
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center text-4xl font-bold text-red-500">
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          height="36px"
+                                          viewBox="0 -960 960 960"
+                                          width="36px"
+                                          fill="#EF4444"
+                                          className="-mr-2"
+                                        >
+                                          <path d="M480-360 280-560h400L480-360Z" />
+                                        </svg>
+                                        {Math.abs(
+                                          modifiedThisYear - modifiedLastYear,
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                            </div>
+                          ) : (
+                            <div
+                              role="status"
+                              className="max-w-sm animate-pulse flex justify-center items-center"
+                            >
+                              <div className="h-8 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-4"></div>
+                            </div>
+                          )}
                           <p className="text-gray-600">
                             Repos Edited this year
                           </p>
                         </div>
-                        <div className="bg-gray-100 rounded-lg p-4">
-                          <p className="text-4xl font-bold">{commitsThisYear}</p>
+                        <div className="bg-gray-100 rounded-lg p-6">
+                          {commitsThisYear !== undefined ? (
+                            <p className="text-5xl font-bold">
+                              {commitsThisYear}
+                            </p>
+                          ) : (
+                            <div
+                              role="status"
+                              className="max-w-sm animate-pulse flex justify-center items-center"
+                            >
+                              <div className="h-8 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-4"></div>
+                            </div>
+                          )}
                           <p className="text-gray-600">Commits this year</p>
                         </div>
                       </div>

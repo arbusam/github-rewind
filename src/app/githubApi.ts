@@ -36,7 +36,7 @@ export async function getRepos(username: string) {
     },
   });
   const response = (await request).data;
-  console.log(response);
+  // console.log(response);
   return response;
 }
 
@@ -51,16 +51,30 @@ export async function getCreatedModifiedThisYear(repos: Repo[]) {
   return { created: createdThisYear.length, modified: modifiedThisYear.length };
 }
 
+export async function getCreatedModifiedLastYear(repos: Repo[]) {
+  const lastYear = new Date().getFullYear() - 1;
+  const createdLastYear = repos.filter(
+    (repo) => new Date(repo.created_at).getFullYear() === lastYear,
+  );
+  const modifiedLastYear = repos.filter(
+    (repo) => new Date(repo.updated_at).getFullYear() === lastYear,
+  );
+  return { created: createdLastYear.length, modified: modifiedLastYear.length };
+}
+
 export async function getCommits(username: string) {
-  const request = octokit.request("GET /search/commits?q=author:{username}+committer-date:2024-01-01..2024-12-31", {
-    username: username,
-    headers: {
-      "X-GitHub-Api-Version": "2022-11-28",
+  const request = octokit.request(
+    "GET /search/commits?q=author:{username}+committer-date:2024-01-01..2024-12-31",
+    {
+      username: username,
+      headers: {
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
     },
-  });
+  );
   const response = (await request).data;
-  console.log(response);
-  console.log(response.incomplete_results);
+  // console.log(response);
+  // console.log(response.incomplete_results);
   if (response.incomplete_results === true) {
     console.log("Incomplete results");
     return 0;

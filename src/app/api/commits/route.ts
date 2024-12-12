@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
     }
 
     const results = await getCommits(username);
+    console.log("Commits:", results);
 
     return NextResponse.json(results);
   } catch (error) {
