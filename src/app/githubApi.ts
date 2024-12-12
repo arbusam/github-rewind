@@ -3,9 +3,17 @@
 import { Octokit } from "octokit";
 import { User } from "@/types/user";
 import { Repo } from "@/types/repo";
+import { createAppAuth } from "@octokit/auth-app";
 
 const octokit = new Octokit({
-  auth: process.env.GITHUB_API_TOKEN,
+  authStrategy: createAppAuth,
+  auth: {
+    appId: process.env.GITHUB_APP_ID,
+    privateKey: process.env.GITHUB_PRIVATE_KEY,
+    clientId: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    installationId: process.env.GITHUB_INSTALLATION_ID,
+  },
 });
 
 export async function getUser(username: string) {
@@ -16,7 +24,7 @@ export async function getUser(username: string) {
     },
   });
   const response = (await request).data;
-  console.log(response);
+  // console.log(response);
   return response;
 }
 
@@ -28,7 +36,7 @@ export async function getRepos(username: string) {
     },
   });
   const response = (await request).data;
-  // console.log(response);
+  console.log(response);
   return response;
 }
 
@@ -41,4 +49,21 @@ export async function getCreatedModifiedThisYear(repos: Repo[]) {
     (repo) => new Date(repo.updated_at).getFullYear() === thisYear,
   );
   return { created: createdThisYear.length, modified: modifiedThisYear.length };
+}
+
+export async function getCommits(username: string) {
+  const request = octokit.request("GET /search/commits?q=author:{username}+committer-date:2024-01-01..2024-12-31", {
+    username: username,
+    headers: {
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+  });
+  const response = (await request).data;
+  console.log(response);
+  console.log(response.incomplete_results);
+  if (response.incomplete_results === true) {
+    console.log("Incomplete results");
+    return 0;
+  }
+  return response.total_count;
 }

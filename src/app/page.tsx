@@ -10,12 +10,19 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [createdThisYear, setCreatedThisYear] = useState<number>();
   const [modifiedThisYear, setModifiedThisYear] = useState<number>();
+  const [commitsThisYear, setCommitsThisYear] = useState<number>();
 
   const handleSearch = (e: React.FormEvent) => {
     setLoading(true);
     e.preventDefault();
     fetch(`/api/user?username=${username}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          setLoading(false);
+          throw new Error("User not found");
+        }
+        return res.json();
+      })
       .then((data) => {
         setLoading(false);
         const createdDate = new Date(data.created_at).toLocaleDateString(
@@ -39,6 +46,11 @@ export default function Home() {
           .then((data) => {
             setCreatedThisYear(data.createdThisYear);
             setModifiedThisYear(data.modifiedThisYear);
+          });
+        fetch(`/api/commits?username=${username}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setCommitsThisYear(data);
           });
       });
   };
@@ -137,7 +149,7 @@ export default function Home() {
                           </p>
                         </div>
                         <div className="bg-gray-100 rounded-lg p-4">
-                          <p className="text-4xl font-bold">73M+</p>
+                          <p className="text-4xl font-bold">{commitsThisYear}</p>
                           <p className="text-gray-600">Commits this year</p>
                         </div>
                       </div>
