@@ -1,8 +1,4 @@
-import {
-  getRepos,
-  getCreatedModifiedThisYear,
-  getCreatedModifiedLastYear,
-} from "@/app/githubApi";
+import { getRepos, getCreatedLastYear } from "@/app/githubApi";
 import { Repo } from "@/types/repo";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -29,14 +25,12 @@ export async function GET(req: NextRequest) {
 
     console.log("Fetching created and modified last year");
 
-    const { created, modified } = await getCreatedModifiedLastYear(repos);
+    const created = await getCreatedLastYear(repos);
 
     console.log("Created last year:", created);
-    console.log("Modified last year:", modified);
 
     const response = {
       createdLastYear: created,
-      modifiedLastYear: modified,
     };
 
     return NextResponse.json(response);

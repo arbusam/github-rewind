@@ -1,4 +1,4 @@
-import { getCommits } from "@/app/githubApi";
+import { getCommitsLastYear } from "@/app/githubApi";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const results = await getCommits(username);
+    const results = await getCommitsLastYear(username);
 
     return NextResponse.json(results);
   } catch (error) {

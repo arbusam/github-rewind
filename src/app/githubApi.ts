@@ -50,20 +50,20 @@ export async function getCreatedModifiedThisYear(repos: Repo[]) {
   return { created: createdThisYear.length, modified: modifiedThisYear.length };
 }
 
-export async function getCreatedModifiedLastYear(repos: Repo[]) {
+export async function getCreatedLastYear(repos: Repo[]) {
   const lastYear = new Date().getFullYear() - 1;
   const createdLastYear = repos.filter(
     (repo) => new Date(repo.created_at).getFullYear() === lastYear,
   );
-  const modifiedLastYear = repos.filter(
-    (repo) => new Date(repo.updated_at).getFullYear() === lastYear,
-  );
-  return { created: createdLastYear.length, modified: modifiedLastYear.length };
+  return createdLastYear.length;
 }
 
 export async function getCommits(username: string) {
+  const currentYear = new Date().getFullYear();
+  const startDate = `${currentYear}-01-01`;
+  const endDate = `${currentYear}-12-31`;
   const request = octokit.request(
-    "GET /search/commits?q=author:{username}+committer-date:2024-01-01..2024-12-31",
+    `GET /search/commits?q=author:{username}+committer-date:${startDate}..${endDate}`,
     {
       username: username,
       headers: {
@@ -72,11 +72,34 @@ export async function getCommits(username: string) {
     },
   );
   const response = (await request).data;
-  // console.log(response);
+  console.log(response);
   // console.log(response.incomplete_results);
   if (response.incomplete_results === true) {
     console.log("Incomplete results");
     return 0;
   }
+  return response.total_count;
+}
+
+export async function getCommitsLastYear(username: string) {
+  const currentYear = new Date().getFullYear();
+  const startDate = `${currentYear - 1}-01-01`;
+  const endDate = `${currentYear - 1}-12-31`;
+  const request = octokit.request(
+    `GET /search/commits?q=author:{username}+committer-date:${startDate}..${endDate}`,
+    {
+      username: username,
+      headers: {
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    },
+  );
+  const response = (await request).data;
+
+  if (response.incomplete_results === true) {
+    console.log("Incomplete results");
+    return 0;
+  }
+
   return response.total_count;
 }

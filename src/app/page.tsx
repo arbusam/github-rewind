@@ -8,10 +8,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [createdThisYear, setCreatedThisYear] = useState<number>();
+  const [createdLastYear, setCreatedLastYear] = useState<number>();
   const [modifiedThisYear, setModifiedThisYear] = useState<number>();
   const [commitsThisYear, setCommitsThisYear] = useState<number>();
-  const [createdLastYear, setCreatedLastYear] = useState<number>();
-  const [modifiedLastYear, setModifiedLastYear] = useState<number>();
+  const [commitsLastYear, setCommitsLastYear] = useState<number>();
 
   useEffect(() => {
     if (window.innerWidth >= 1024) {
@@ -21,6 +21,12 @@ export default function Home() {
 
   const handleSearch = (e: React.FormEvent) => {
     setLoading(true);
+    setUser(null);
+    setCreatedThisYear(undefined);
+    setModifiedThisYear(undefined);
+    setCommitsThisYear(undefined);
+    setCreatedLastYear(undefined);
+    setCommitsLastYear(undefined);
     e.preventDefault();
     fetch(`/api/user?username=${username}`)
       .then((res) => {
@@ -58,12 +64,16 @@ export default function Home() {
           .then((res) => res.json())
           .then((data) => {
             setCreatedLastYear(data.createdLastYear);
-            setModifiedLastYear(data.modifiedLastYear);
           });
         fetch(`/api/commits?username=${username}`)
           .then((res) => res.json())
           .then((data) => {
             setCommitsThisYear(data);
+          });
+        fetch(`/api/commitsLastYear?username=${username}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setCommitsLastYear(data);
           });
       });
   };
@@ -220,10 +230,29 @@ export default function Home() {
                               <p className="text-5xl font-bold -mr-2">
                                 {modifiedThisYear}
                               </p>
-                              {modifiedThisYear !== undefined &&
-                                modifiedLastYear !== undefined && (
-                                  <div className="flex items-center ml-2">
-                                    {modifiedThisYear - modifiedLastYear > 0 ? (
+                            </div>
+                          ) : (
+                            <div
+                              role="status"
+                              className="max-w-sm animate-pulse flex justify-center items-center"
+                            >
+                              <div className="h-8 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-4"></div>
+                            </div>
+                          )}
+                          <p className="text-gray-600">
+                            Repos Edited this year
+                          </p>
+                        </div>
+                        <div className="bg-gray-100 rounded-lg p-6">
+                          {commitsThisYear !== undefined ? (
+                            <div className="flex items-center justify-center">
+                              <p className="text-5xl font-bold">
+                                {commitsThisYear}
+                              </p>
+                              {commitsThisYear !== undefined &&
+                                commitsLastYear !== undefined && (
+                                  <div className="flex items-center -mr-2">
+                                    {commitsThisYear - commitsLastYear > 0 ? (
                                       <div className="flex items-center text-4xl font-bold text-green-500">
                                         <svg
                                           xmlns="http://www.w3.org/2000/svg"
@@ -236,10 +265,10 @@ export default function Home() {
                                           <path d="m280-400 200-200 200 200H280Z" />
                                         </svg>
                                         {Math.abs(
-                                          modifiedThisYear - modifiedLastYear,
+                                          commitsThisYear - commitsLastYear,
                                         )}
                                       </div>
-                                    ) : modifiedThisYear - modifiedLastYear ===
+                                    ) : commitsThisYear - commitsLastYear ===
                                       0 ? (
                                       <div className="flex items-center text-4xl font-bold text-gray-500 ml-4">
                                         +0
@@ -257,30 +286,13 @@ export default function Home() {
                                           <path d="M480-360 280-560h400L480-360Z" />
                                         </svg>
                                         {Math.abs(
-                                          modifiedThisYear - modifiedLastYear,
+                                          commitsThisYear - commitsLastYear,
                                         )}
                                       </div>
                                     )}
                                   </div>
                                 )}
                             </div>
-                          ) : (
-                            <div
-                              role="status"
-                              className="max-w-sm animate-pulse flex justify-center items-center"
-                            >
-                              <div className="h-8 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-4"></div>
-                            </div>
-                          )}
-                          <p className="text-gray-600">
-                            Repos Edited this year
-                          </p>
-                        </div>
-                        <div className="bg-gray-100 rounded-lg p-6">
-                          {commitsThisYear !== undefined ? (
-                            <p className="text-5xl font-bold">
-                              {commitsThisYear}
-                            </p>
                           ) : (
                             <div
                               role="status"
