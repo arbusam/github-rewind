@@ -115,6 +115,9 @@ export default function Home() {
               <h1 className="text-3xl font-bold text-center mb-1">
                 GitHub Rewind
               </h1>
+              <h2 className="text-lg text-center text-gray-500 dark:text-gray-400">
+                See how your GitHub stats compare to last year
+              </h2>
               <p className="text-center text-gray-500 dark:text-gray-400 mb-4">
                 NOTE: Only public repositories are counted
               </p>
