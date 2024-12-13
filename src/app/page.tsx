@@ -12,6 +12,10 @@ export default function Home() {
   const [modifiedThisYear, setModifiedThisYear] = useState<number>();
   const [commitsThisYear, setCommitsThisYear] = useState<number>();
   const [commitsLastYear, setCommitsLastYear] = useState<number>();
+  const [pullRequestsMerged, setPullRequestsMerged] = useState<number>();
+  const [pullRequestsMergedLastYear, setPullRequestsMergedLastYear] = useState<number>();
+  const [issuesOpened, setIssuesOpened] = useState<number>();
+  const [issuesOpenedLastYear, setIssuesOpenedLastYear] = useState<number>();
 
   useEffect(() => {
     if (window.innerWidth >= 1024) {
@@ -27,6 +31,10 @@ export default function Home() {
     setCommitsThisYear(undefined);
     setCreatedLastYear(undefined);
     setCommitsLastYear(undefined);
+    setPullRequestsMerged(undefined);
+    setIssuesOpened(undefined);
+    setPullRequestsMergedLastYear(undefined);
+    setIssuesOpenedLastYear(undefined);
     e.preventDefault();
     fetch(`/api/user?username=${username}`)
       .then((res) => {
@@ -75,6 +83,26 @@ export default function Home() {
           .then((data) => {
             setCommitsLastYear(data);
           });
+        fetch(`/api/pullRequestsMerged?username=${username}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setPullRequestsMerged(data);
+          });
+        fetch(`/api/issuesOpened?username=${username}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setIssuesOpened(data);
+          });
+        fetch(`/api/pullRequestsMergedLastYear?username=${username}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setPullRequestsMergedLastYear(data);
+          });
+        fetch(`/api/issuesOpenedLastYear?username=${username}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setIssuesOpenedLastYear(data);
+          });
       });
   };
 
@@ -84,9 +112,12 @@ export default function Home() {
         <main className="flex-1 px-4 py-8">
           <div className="mx-auto max-w-4xl">
             <div className="rounded-lg bg-white p-12 shadow-lg dark:bg-black">
-              <h1 className="text-3xl font-bold text-center mb-4">
+              <h1 className="text-3xl font-bold text-center mb-1">
                 GitHub Rewind
               </h1>
+              <p className="text-center text-gray-500 dark:text-gray-400 mb-4">
+                NOTE: Only public repositories are counted
+              </p>
               <form onSubmit={handleSearch} className="flex gap-2">
                 <input
                   type="text"
@@ -270,7 +301,7 @@ export default function Home() {
                                       </div>
                                     ) : commitsThisYear - commitsLastYear ===
                                       0 ? (
-                                      <div className="flex items-center text-4xl font-bold text-gray-500 ml-4">
+                                      <div className="flex items-center text-4xl font-bold text-gray-500 ml-2">
                                         +0
                                       </div>
                                     ) : (
@@ -302,6 +333,135 @@ export default function Home() {
                             </div>
                           )}
                           <p className="text-gray-600">Commits this year</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-full max-w-2xl mx-auto bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700 mt-6 rounded-lg p-12">
+                    <div className="text-center">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-100 rounded-lg p-6">
+                          {pullRequestsMerged !== undefined ? (
+                            <div className="flex items-center justify-center">
+                              <p className="text-5xl font-bold">
+                                {pullRequestsMerged}
+                              </p>
+                              {pullRequestsMerged !== undefined &&
+                                pullRequestsMergedLastYear !== undefined && (
+                                  <div className="flex items-center -mr-2">
+                                    {pullRequestsMerged - pullRequestsMergedLastYear > 0 ? (
+                                      <div className="flex items-center text-4xl font-bold text-green-500">
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          height="36px"
+                                          viewBox="0 -960 960 960"
+                                          width="36px"
+                                          fill="#10B981"
+                                          className="-mr-2"
+                                        >
+                                          <path d="m280-400 200-200 200 200H280Z" />
+                                        </svg>
+                                        {Math.abs(
+                                          pullRequestsMerged - pullRequestsMergedLastYear,
+                                        )}
+                                      </div>
+                                    ) : pullRequestsMerged - pullRequestsMergedLastYear ===
+                                      0 ? (
+                                      <div className="flex items-center text-4xl font-bold text-gray-500 ml-2">
+                                        +0
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center text-4xl font-bold text-red-500">
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          height="36px"
+                                          viewBox="0 -960 960 960"
+                                          width="36px"
+                                          fill="#EF4444"
+                                          className="-mr-2"
+                                        >
+                                          <path d="M480-360 280-560h400L480-360Z" />
+                                        </svg>
+                                        {Math.abs(
+                                          pullRequestsMerged - pullRequestsMergedLastYear,
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                            </div>
+                          ) : (
+                            <div
+                              role="status"
+                              className="max-w-sm animate-pulse flex justify-center items-center"
+                            >
+                              <div className="h-8 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-4"></div>
+                            </div>
+                          )}
+                          <p className="text-gray-600 mt-2">
+                            Pull Requests Created that have been merged this year
+                          </p>
+                        </div>
+                        <div className="bg-gray-100 rounded-lg p-6">
+                          {issuesOpened !== undefined ? (
+                            <div className="flex items-center justify-center">
+                              <p className="text-5xl font-bold">
+                                {issuesOpened}
+                              </p>
+                              {issuesOpened !== undefined && issuesOpenedLastYear !== undefined && (
+                                <div className="flex items-center -mr-2">
+                                  {issuesOpened - issuesOpenedLastYear > 0 ? (
+                                    <div className="flex items-center text-4xl font-bold text-green-500">
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        height="36px"
+                                        viewBox="0 -960 960 960"
+                                        width="36px"
+                                        fill="#10B981"
+                                        className="-mr-2"
+                                      >
+                                        <path d="m280-400 200-200 200 200H280Z" />
+                                      </svg>
+                                      {Math.abs(
+                                        issuesOpened - issuesOpenedLastYear,
+                                      )}
+                                    </div>
+                                  ) : issuesOpened - issuesOpenedLastYear ===
+                                    0 ? (
+                                    <div className="flex items-center text-4xl font-bold text-gray-500 ml-4">
+                                      +0
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center text-4xl font-bold text-red-500">
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        height="36px"
+                                        viewBox="0 -960 960 960"
+                                        width="36px"
+                                        fill="#EF4444"
+                                        className="-mr-2"
+                                      >
+                                        <path d="M480-360 280-560h400L480-360Z" />
+                                      </svg>
+                                      {Math.abs(
+                                        issuesOpened - issuesOpenedLastYear,
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div
+                              role="status"
+                              className="max-w-sm animate-pulse flex justify-center items-center"
+                            >
+                              <div className="h-8 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-4"></div>
+                            </div>
+                          )}
+                          <p className="text-gray-600">
+                            Issues Opened this year
+                          </p>
                         </div>
                       </div>
                     </div>
