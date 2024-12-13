@@ -110,7 +110,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="flex min-h-screen flex-col">
         <main className="flex-1 px-4 py-8">
-          <div className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-5xl">
             <div className="rounded-lg bg-white p-12 shadow-lg dark:bg-black">
               <h1 className="text-3xl font-bold text-center mb-1">
                 GitHub Rewind
@@ -163,7 +163,7 @@ export default function Home() {
               <div className="mt-4" />
               {user && (
                 <div>
-                  <div className="w-full max-w-2xl mx-auto bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                  <div className="w-full max-w-3xl mx-auto bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
                     <div className="mt-6 flex flex-col items-center pb-12">
                       <img
                         className="w-24 h-24 mb-3 rounded-full shadow-lg"
@@ -190,7 +190,7 @@ export default function Home() {
                       </h3>
                     </div>
                   </div>
-                  <div className="w-full max-w-2xl mx-auto bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700 mt-6 rounded-lg p-12">
+                  <div className="w-full max-w-3xl mx-auto bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700 mt-6 rounded-lg p-12">
                     <div className="text-center">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="bg-gray-100 rounded-lg p-6">
@@ -337,8 +337,9 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <div className="w-full max-w-2xl mx-auto bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700 mt-6 rounded-lg p-12">
+                  <div className="w-full max-w-3xl mx-auto bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700 mt-6 rounded-lg p-12">
                     <div className="text-center">
+                      <h2 className="text-2xl font-semibold mb-4 -mt-6">Open Source Contributions</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="bg-gray-100 rounded-lg p-6">
                           {pullRequestsMerged !== undefined ? (
